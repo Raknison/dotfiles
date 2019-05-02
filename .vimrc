@@ -1,31 +1,38 @@
 " .vimrc
+set nocompatible
+filetype off
+
 set encoding=utf-8
 
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
 
 " Let Vundle manage Vundle
-Bundle 'gmarik/vundle'
+Plugin 'VundleVim/Vundle.vim'
 
 " my bundles
-Bundle 'tpope/vim-surround'
-Bundle 'tpope/vim-commentary'
-" Bundle 'tpope/vim-haml'
-Bundle 'kien/ctrlp.vim'
-Bundle 'mattn/emmet-vim'
-Bundle 'mustache/vim-mustache-handlebars'
-Bundle 'flazz/vim-colorschemes'
-Bundle 'vim-airline/vim-airline'
-Bundle 'osyo-manga/vim-over'
-Bundle 'rking/ag.vim'
-" Bundle 'thoughtbot/vim-rspec'
-Bundle 'elixir-lang/vim-elixir'
-Bundle 'jelera/vim-javascript-syntax'
-Bundle 'SirVer/ultisnips'
-Bundle 'elmcast/elm-vim'
-Bundle 'scrooloose/nerdtree'
-" Bundle 'vim-scripts/phpfolding.vim'
-Bundle 'leafgarland/typescript-vim'
+Plugin 'editorconfig/editorconfig-vim'
+Plugin 'tpope/vim-surround'
+Plugin 'tpope/vim-commentary'
+" Plugin 'tpope/vim-haml'
+Plugin 'kien/ctrlp.vim'
+" Plugin 'mattn/emmet-vim'
+" Plugin 'mustache/vim-mustache-handlebars'
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
+Plugin 'osyo-manga/vim-over'
+Plugin 'rking/ag.vim'
+" Plugin 'elixir-lang/vim-elixir'
+Plugin 'jelera/vim-javascript-syntax'
+" Plugin 'SirVer/ultisnips'
+" Plugin 'elmcast/elm-vim'
+Plugin 'scrooloose/nerdtree'
+" Plugin 'vim-scripts/phpfolding.vim'
+Plugin 'leafgarland/typescript-vim'
+Plugin 'nathanaelkane/vim-indent-guides'
+Plugin 'nanotech/jellybeans.vim'
+
+call vundle#end()
 
 syntax on
 filetype plugin indent on
@@ -36,30 +43,70 @@ filetype plugin indent on
 
 set clipboard=unnamed
 
+set path+=**
+
 " set dark background and color scheme
 set background=dark
-colorscheme railscasts
+colorscheme jellybeans
+
+" Force 256 color mode if available
+if $TERM =~ "-256color"
+  set t_Co=256
+endif
+
+" ---------------
+" jellybeans.vim colorscheme tweaks
+" ---------------
+" Make cssAttrs (center, block, etc.) the same color as units
+hi! link cssAttr Constant
+hi SignColumn ctermbg=233
+hi IndentGuidesEven ctermbg=235
+hi IndentGuidesOdd ctermbg=234
 
 " get rid of the | character in vsplits
 set fillchars+=vert:\ 
 
 " elm-format
-let g:elm_format_autosave = 1
+" let g:elm_format_autosave = 1
 
 " UltiSnips config
-let g:UltiSnipsEditSplit = 'context'
+" let g:UltiSnipsEditSplit = 'context'
 
-" set powerline fancy fonts
-let g:airline_powerline_fonts = 1
-let g:airline_left_sep=''
-let g:airline_right_sep=''
+" ---------------
+" airline
+" ---------------
+let g:airline_theme = 'jellybeans'
+" let g:airline_symbols = {}
+" let g:airline_symbols.whitespace = 'Ξ'
+
+let g:airline_detect_modified = 1
+let g:airline#extensions#whitespace#enabled = 1
+let g:airline#extensions#hunks#enabled = 0
+let g:airline_mode_map = {
+      \ 'n'  : 'N',
+      \ 'i'  : 'I',
+      \ 'R'  : 'R',
+      \ 'v'  : 'V',
+      \ 'V'  : 'VL',
+      \ 'c'  : 'CMD',
+      \ '' : 'VB',
+      \ }
+
+" Show the current working directory folder name
+let g:airline_section_b = '%{substitute(getcwd(), ".*\/", "", "g")} '
+
+" Just show the file name
+let g:airline_section_c = '%t'
+
+" enable indent guides
+let g:indent_guides_enable_on_vim_startup = 1
 
 " enable mustache abbreviations
-let g:mustache_abbreviations = 1
+" let g:mustache_abbreviations = 1
 
 " emmet support for handlebars
-let g:user_emmet_install_global = 0
-autocmd FileType html.handlebars,hbs,html,css,scss,sass EmmetInstall
+" let g:user_emmet_install_global = 0
+" autocmd FileType html.handlebars,hbs,html,css,scss,sass EmmetInstall
 
 " setup some custom colors
 highlight VertSplit    ctermbg=236 cterm=none
@@ -90,6 +137,9 @@ autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
 autocmd InsertLeave * match ExtraWhitespace /\s\+$/
 autocmd BufWinLeave * call clearmatches()
 
+autocmd FileType json setlocal softtabstop=4 shiftwidth=4
+autocmd FileType php setlocal noexpandtab
+
 " Remove trailing whitespace on save for ruby files.
 au BufWritePre *.rb :%s/\s\+$//e
 
@@ -108,13 +158,13 @@ set hlsearch                      " highlight all search matches
 set cursorline                    " highlight current line
 set smartcase                     " pay attention to case when caps are used
 set incsearch                     " show search results as I type
-set mouse=a                       " enable mouse support
+set mouse=                        " disable mouse support
 set ttimeoutlen=100               " decrease timeout for faster insert with 'O'
 set vb                            " enable visual bell (disable audio bell)
 set ruler                         " show row and column in footer
 set scrolloff=2                   " minimum lines above/below cursor
 set laststatus=2                  " always show status bar
-set list lcs=tab:»·,trail:·,eol:¬ " show extra space characters
+" set list lcs=tab:»·,trail:·,eol:¬ " show extra space characters
 set nobackup                      " don't write backup files
 set noswapfile                    " don't write swap files
 set nofoldenable                  " disable code folding
@@ -153,7 +203,11 @@ let g:ctrlp_match_window_reverse = 1
 let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
 
 " clear the command line and search highlighting
-noremap <C-l> :nohlsearch<CR>
+noremap <silent><C-l> :nohlsearch<CR>
+
+" remap [ and ]
+nnoremap ü ]
+nnoremap Ü [
 
 " got to learn to navigate without the arrow keys ;-)
 noremap <Up> <Nop>
@@ -175,11 +229,14 @@ nnoremap <C-x> <C-w>c
 " noremap <Leader>n :cn<CR>
 " noremap <Leader>p :cp<CR>
 nnoremap <Leader>A :Ag! 
+nnoremap <Leader>ag :Ag! 
 nnoremap <Leader>m :NERDTreeToggle<CR>
+nnoremap <Leader>l :w<CR>:!clear && node index.js<CR>
 
 " Edit another file in the same directory as the current file
 " uses expression to extract path from current file's path
 map <Leader>e :e <C-R>=escape(expand("%:p:h"),' ') . '/'<CR>
+map <Leader>v :vsp <C-R>=escape(expand("%:p:h"),' ') . '/'<CR>
 map <Leader>s :split <C-R>=escape(expand("%:p:h"), ' ') . '/'<CR>
 map <Leader>vn :vnew <C-R>=escape(expand("%:p:h"), ' ') . '/'<CR>
 
@@ -196,17 +253,13 @@ nnoremap <Leader>fr :call VisualFindAndReplace()<CR>
 xnoremap <Leader>fr :call VisualFindandReplaceWithSelection()<CR>
 
 " testing stuff
-" using thoughtbot/vim-rspec and tpope/dispatch.
-" let g:rspec_runner = "os_x_iterm2"
-" let g:rspec_command = "Dispatch bin/rspec {spec} --format doc"
-" let g:rspec_command = "!clear && bin/rspec {spec} --format doc"
 let g:rspec_command = "!clear && mix test {spec}"
 
 " RSpec.vim mappings
 map <Leader>t :w<cr>:call RunCurrentSpecFile()<CR>
 map <Leader>n :w<cr>:call RunNearestSpec()<CR>
 " map <Leader>s :w<cr>:call RunNearestSpec()<CR>
-map <Leader>l :w<cr>:call RunLastSpec()<CR>
+" map <Leader>l :w<cr>:call RunLastSpec()<CR>
 " map <Leader>T :w<cr>:call RunAllSpecs()<CR>
 
 
